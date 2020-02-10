@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<head>
+    <link rel="stylesheet" type="text/css" href="/css">
+</head>
+
+<body>
+    <div class="container" id="def">
+        <h1 id="header">Hello world!</h1>
+        <input type="text" id="inputField" placeholder="identikey">
+        <button onclick="redirect()">Lookup</button>
+    </div>
+
+    <div class="container" id="key">
+        <h1 id="name">Retrieving data...</h1>
+        <h2 id="points"></h2>
+        <p><a href="/">Return home</a></p>
+    </div>
+
+    <div class="footer">
+        <p>Made with 💟 at T9Hacks 2020</p>
+    </div>
+
+    <div class="contact">
+        <p>Issues? Feel free to <a href="mailto:mahon@colorado.edu">email</a> us!</p>
+    </div>
+
+    <script>
+        function GetURLParameter(sParam)
+        {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) 
+            {
+                var sParameterName = sURLVariables[i].split('=');
+                if (sParameterName[0] == sParam) 
+                {
+                    return sParameterName[1];
+                }
+            }
+        }
+        function redirect()
+        {
+            var key = document.getElementById("inputField").value;
+            window.location.href = "?identikey="+key;
+        }
+        if(GetURLParameter("identikey") != undefined){
+            document.getElementById("def").hidden=true;
+            fetch('https://smith-points.herokuapp.com/get/'+GetURLParameter("identikey"))
+                .then(function(response){ 
+                    if(!response.ok){
+                        document.getElementById("name").innerHTML=GetURLParameter("identikey")+" not found";
+                        document.getElementById("points").innerHTML="It may be misspelled or missing";
+                    }
+                    return response.json();
+                })
+                .then(function(json){
+                    document.getElementById("name").innerHTML=json.first+" "+json.last;
+                    if(json.points == 1){
+                        document.getElementById("points").innerHTML="1 point";
+                    }
+                    else{
+                        document.getElementById("points").innerHTML=json.points+" points"
+                    }
+                })
+        }
+        else{
+            document.getElementById("key").hidden=true;
+        }
+    </script>
+</body>
+</html>
