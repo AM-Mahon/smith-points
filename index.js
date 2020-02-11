@@ -147,8 +147,8 @@ app.delete("/delete/:id", function(req, res, next) {
     }
     else{
         deleteRow(req.params.id.toLowerCase())
-            .then(res.status(200).send(req.params.id+" removed from database."))
-            .catch(function(err) {
+            .then(out => res.status(200).send(req.params.id+" removed from database."))
+            .catch(err => {
                 if(err == 404){
                     res.status(404).send(req.params.id+" not found in database.");
                 }
