@@ -77,7 +77,7 @@ var deleteRow = async function(id){
     res = await pgClient.query("SELECT COUNT(identikey) from points where identikey = $1;", [id]);
     if(res.rows[0].count == 0){
         return new Promise(function(resolve, reject){
-            reject(404);
+            return reject(404);
         });
     }
     else{
