@@ -77,7 +77,7 @@ var deleteRow = async function(id){
     res = await pgClient.query("SELECT COUNT(identikey) from points where identikey = $1;", [id]);
     if(res.rows[0].count == 0){
         return new Promise(function(resolve, reject){
-            return reject(404);
+            reject(404);
         });
     }
     else{
@@ -144,7 +144,7 @@ app.delete("/delete/:id", function(req, res, next) {
     else{
         deleteRow(req.params.id.toLowerCase())
             .then(res.status(200).send(req.params.id+" removed from database."))
-            .catch(err => {
+            .catch(function(err) {
                 if(err == 404){
                     res.status(404).send(req.params.id+" not found in database.");
                 }
