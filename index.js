@@ -74,7 +74,7 @@ var getRow = async function(key){
 }
 
 var deleteRow = async function(id){
-    res = await pgClient.query("SELECT COUNT(identikey) from points where identikey = $1;", [id.toLowerCase()]);
+    res = await pgClient.query("SELECT COUNT(identikey) from points where identikey = $1;", [id]);
     if(res.rows[0].count == 0){
         return new Promise(function(resolve, reject){
             reject(404);
@@ -82,7 +82,7 @@ var deleteRow = async function(id){
     }
     else{
         return new Promise(function(resolve, reject){
-            pgClient.query("DELETE FROM points WHERE identikey = $1;", [id.toLowerCase()], (err, res) => {
+            pgClient.query("DELETE FROM points WHERE identikey = $1;", [id], (err, res) => {
                 if(err){
                     console.log(err);
                     reject(err);
@@ -129,7 +129,7 @@ app.put("/put/:id", function(req, res, next) {
         res.status(403).send("Access denied");
     }
     else{
-        putRow(req.params.id, req.body)
+        putRow(req.params.id.toLowerCase(), req.body)
             .then(queryRes => {
                 res.status(200).send(req.params.id+" update succeeded");
             })
@@ -142,7 +142,7 @@ app.delete("/delete/:id", function(req, res, next) {
         res.status(403).send("Access denied");
     }
     else{
-        deleteRow(req.params.id)
+        deleteRow(req.params.id.toLowerCase())
             .then(res.status(200).send(req.params.id+" removed from database."))
             .catch(err => {
                 if(err == 404){
