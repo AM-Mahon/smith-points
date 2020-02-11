@@ -73,6 +73,28 @@ var getRow = async function(key){
     })
 }
 
+var deleteRow = async function(id){
+    res = await pgClient.query("SELECT COUNT(identikey) from points where identikey = $1;", [id.toLowerCase()]);
+    if(res.rows[0].count == 0){
+        return new Promise(function(resolve, reject){
+            reject(404);
+        });
+    }
+    else{
+        return new Promise(function(resolve, reject){
+            pgClient.query("DELETE FROM points WHERE identikey = $1;", [id.toLowerCase()], (err, res) => {
+                if(err){
+                    console.log(err);
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            })
+        })
+    }
+}
+
 var app = express();
 
 app.use(cors())
@@ -112,5 +134,23 @@ app.put("/put/:id", function(req, res, next) {
                 res.status(200).send(req.params.id+" update succeeded");
             })
             .catch(err => res.status(500).send(err));
+    }
+})
+
+app.delete("/delete/:id", function(req, res, next) {
+    if(typeof(req.body.pass) == "undefined" || req.body.pass != process.env.PASS){
+        res.status(403).send("Access denied");
+    }
+    else{
+        deleteRow(req.params.id)
+            .then(res.status(200).send(req.params.id+" removed from database."))
+            .catch(err => {
+                if(err == 404){
+                    res.status(404).send(req.params.id+" not found in database.");
+                }
+                else{
+                    res.status(500).send(err);
+                }
+            })
     }
 })
