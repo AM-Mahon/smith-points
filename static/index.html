@@ -1,73 +1,86 @@
 <!DOCTYPE html>
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-<head>
-    <link rel="stylesheet" type="text/css" href="/css">
-</head>
-
-<body>
-    <div class="container" id="def">
-        <h1 id="header">Hello world!</h1>
-        <input type="text" id="inputField" placeholder="Enter identikey (abcd1234)">
-        <button onclick="redirect()">Lookup</button>
-    </div>
-
-    <div class="container" id="key">
-        <h1 id="name">Retrieving data...</h1>
-        <h2 id="points"></h2>
-        <p><a href="/">Return home</a></p>
-    </div>
-
-    <div class="footer">
-        <p>Made with 💟 at T9Hacks 2020</p>
-    </div>
-
-    <div class="contact">
-        <p>Issues? Feel free to <a href="mailto:mahon@colorado.edu">email</a> us!</p>
-    </div>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Smith Points 2</title>
+    <link rel="stylesheet" href="./css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  </head>
+  <body>
+    <section class="hero is-fullheight">
+      <div class="hero-body">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-4">
+              <div id="formContainer" onKeyPress="return pressed(event)">
+                <input class="input" type="text" id="inputField" placeholder="Enter Identikey (abcd1234)">
+                <button class ="button" onclick="lookup()">Lookup</button>
+              </div>
+            </div>
+            <div class="column is-4 is-hidden" id="col2">
+              <div class="tile is-vertical">
+                <article class="tile is-child box">
+                  <p class="title has-text-dark" id="name">Name</p>
+                  <div class="content">
+                    <p class="subtitle has-text-dark" id="points">Points</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </section>
 
     <script>
-        function GetURLParameter(sParam)
-        {
-            var sPageURL = window.location.search.substring(1);
-            var sURLVariables = sPageURL.split('&');
-            for (var i = 0; i < sURLVariables.length; i++) 
-            {
-                var sParameterName = sURLVariables[i].split('=');
-                if (sParameterName[0] == sParam) 
-                {
-                    return sParameterName[1];
-                }
+      async function pressed(k){
+        if(k && k.keyCode == 13){
+          lookup()
+        }
+      }
+
+      async function lookup(){
+        var key = document.getElementById("inputField").value;
+        document.getElementById("formContainer").className = "control is-loading"
+        fetch('https://smith-points.herokuapp.com/get/'+document.getElementById("inputField").value)
+          .then(response => {
+            document.getElementById("formContainer").className = "control"
+            if(!response.ok){
+              document.getElementById("name").innerHTML = document.getElementById("inputField").value+" not found";
+              document.getElementById("points").innerHTML="It may be misspelled or missing";
+              document.getElementById("col2").className = "column is-4";
+              return
             }
+            return response.json()            
+          })
+          .then(json => {
+            document.getElementById("name").innerHTML=json.first+" "+json.last;
+            if(json.points == 1){
+                document.getElementById("points").innerHTML="1 point";
+            }
+            else{
+                document.getElementById("points").innerHTML=json.points+" points"
+            }
+            document.getElementById("col2").className = "column is-4";
+          })
+      }
+
+      function GetURLParameter(sParam){
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+          var sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] == sParam) {
+            return sParameterName[1];
+          }
         }
-        function redirect()
-        {
-            var key = document.getElementById("inputField").value;
-            window.location.href = "?identikey="+key;
-        }
-        if(GetURLParameter("identikey") != undefined){
-            document.getElementById("def").hidden=true;
-            fetch('/get/'+GetURLParameter("identikey"))
-                .then(function(response){ 
-                    if(!response.ok){
-                        document.getElementById("name").innerHTML=GetURLParameter("identikey")+" not found";
-                        document.getElementById("points").innerHTML="It may be misspelled or missing";
-                    }
-                    return response.json();
-                })
-                .then(function(json){
-                    document.getElementById("name").innerHTML=json.first+" "+json.last;
-                    if(json.points == 1){
-                        document.getElementById("points").innerHTML="1 point";
-                    }
-                    else{
-                        document.getElementById("points").innerHTML=json.points+" points"
-                    }
-                })
-        }
-        else{
-            document.getElementById("key").hidden=true;
-        }
+      }
+
+      if(GetURLParameter("identikey") != undefined){
+        document.getElementById("inputField").value = GetURLParameter("identikey");
+        lookup();
+      }
     </script>
-</body>
-</html>
+  </body>

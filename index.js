@@ -110,7 +110,7 @@ app.get("/", function(req, res, next) {
 })
 
 app.get("/css", function(req, res, next) {
-    res.sendFile(path.join(__dirname+'/static/index.css'))
+    res.sendFile(path.join(__dirname+'/static/mystyles.css'))
 })
 
 app.get("/get/:id", function(req, res, next) {
